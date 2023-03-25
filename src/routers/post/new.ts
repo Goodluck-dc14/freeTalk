@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import Post from "../../models/post";
+import { BadRequestError } from "../../../common/";
 
 const router = Router();
 
@@ -9,9 +10,7 @@ router.post(
     const { title, content } = req.body;
 
     if (!title || !content) {
-      const error = new Error("title and content are required!") as CustomError;
-      error.status = 400;
-      return next(error);
+      return next(new BadRequestError("title and content are required!"));
     }
     const newPost = new Post({
       title,

@@ -9,3 +9,4 @@ export * from "./comment/delete";
 export * from "./auth/current-user";
 export * from "./auth/signin";
 export * from "./auth/signup";
+export * from "./auth/signout";
