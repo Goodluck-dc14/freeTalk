@@ -14,7 +14,7 @@ router.post(
 
     if (user) return next(new BadRequestError("User already exists"));
 
-    const newUser = new User({
+    const newUser = User.build({
       email,
       password,
     });

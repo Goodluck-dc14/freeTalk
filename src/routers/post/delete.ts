@@ -1,3 +1,4 @@
+import { User, UserDoc } from "../../models/user";
 import { Router, Request, Response, NextFunction } from "express";
 import Post from "../../models/post";
 import { BadRequestError } from "../../../common/";
@@ -17,7 +18,15 @@ router.delete(
     } catch (err) {
       next(new Error("post cannot be updated"));
     }
-    res.status(200).json({ success: true });
+
+    const user = await User.findOneAndUpdate(
+      { _id: req.currentUser!.userId },
+      { $pull: { posts: id } },
+      { new: true }
+    );
+
+    if (!user) return next(new Error());
+    res.status(200).send(user);
   }
 );
 

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import Post from "../../models/post";
+import { User } from "../../models/user";
 import { BadRequestError } from "../../../common/";
 
 const router = Router();
@@ -12,12 +13,17 @@ router.post(
     if (!title || !content) {
       return next(new BadRequestError("title and content are required!"));
     }
-    const newPost = new Post({
+    const newPost = Post.build({
       title,
       content,
     });
 
     await newPost.save();
+
+    await User.findOneAndUpdate(
+      { _id: req.currentUser!.userId },
+      { $push: { posts: newPost._id } }
+    );
 
     res.status(201).send(newPost);
   }

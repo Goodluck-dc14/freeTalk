@@ -15,7 +15,7 @@ router.post(
       return next(new BadRequestError("content is required!"));
     }
 
-    const newComment = new Comment({
+    const newComment = Comment.build({
       userName: userName ? userName : "anonymous",
       content,
     });
