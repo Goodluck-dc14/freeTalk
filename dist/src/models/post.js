@@ -13,6 +13,7 @@ const postSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    images: [{ src: { type: String, required: true } }],
     comments: [
         {
             type: mongoose_1.default.Schema.Types.ObjectId,
@@ -20,5 +21,6 @@ const postSchema = new mongoose_1.default.Schema({
         },
     ],
 });
+postSchema.statics.build = (createPostDto) => new Post(createPostDto);
 const Post = mongoose_1.default.model("Post", postSchema);
 exports.default = Post;

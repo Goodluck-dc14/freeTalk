@@ -12,19 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = require("./app");
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!process.env.MONGO_URI)
-        throw new Error("MONGO_URI is required");
-    if (!process.env.JWT_KEY)
-        throw new Error("JWT_KEY is required");
-    try {
-        yield mongoose_1.default.connect(process.env.MONGO_URI);
-    }
-    catch (err) {
-        throw new Error("Database error");
-    }
-    app_1.app.listen(8080, () => console.log("listening on port 8080"));
-});
-start();
+exports.deleteImagesRouter = void 0;
+const express_1 = require("express");
+const post_1 = __importDefault(require("../../models/post"));
+const router = (0, express_1.Router)();
+exports.deleteImagesRouter = router;
+router.post("/post/:id/delete/images", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { imagesIds } = req.body;
+    const post = yield post_1.default.findOneAndUpdate({ _id: id }, { $pull: { images: { _id: { $in: imagesIds } } } }, { new: true });
+    res.status(200).send(post);
+}));

@@ -27,7 +27,7 @@ commentSchema.statics.build = (createCommentDto: CreateCommentDto) =>
   new Comment(createCommentDto);
 
 const Comment = mongoose.model<CommentDoc, CommentModel>(
-  "Comment",
+  "comment",
   commentSchema
 );
 

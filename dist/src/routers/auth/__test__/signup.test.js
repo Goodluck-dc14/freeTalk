@@ -12,19 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = require("./app");
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!process.env.MONGO_URI)
-        throw new Error("MONGO_URI is required");
-    if (!process.env.JWT_KEY)
-        throw new Error("JWT_KEY is required");
-    try {
-        yield mongoose_1.default.connect(process.env.MONGO_URI);
-    }
-    catch (err) {
-        throw new Error("Database error");
-    }
-    app_1.app.listen(8080, () => console.log("listening on port 8080"));
-});
-start();
+const supertest_1 = __importDefault(require("supertest"));
+const app_1 = require("../../../app");
+it("returns 201 on successful signup", () => __awaiter(void 0, void 0, void 0, function* () {
+    return (0, supertest_1.default)(app_1.app).post("/signup").send({
+        email: "test@test.com",
+        password: "123456"
+    })
+        .expect(201);
+}));
+it("sets the cookie after successful signup", () => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield (0, supertest_1.default)(app_1.app).post("/signup").send({
+        email: "test@test.com",
+        password: "123456"
+    })
+        .expect(201);
+    expect(res.get("Set-Cookie")).toBeDefined();
+}));

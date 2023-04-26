@@ -12,19 +12,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
+const authentication_1 = require("./../../common/src/services/authentication");
 const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = require("./app");
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!process.env.MONGO_URI)
-        throw new Error("MONGO_URI is required");
-    if (!process.env.JWT_KEY)
-        throw new Error("JWT_KEY is required");
-    try {
-        yield mongoose_1.default.connect(process.env.MONGO_URI);
-    }
-    catch (err) {
-        throw new Error("Database error");
-    }
-    app_1.app.listen(8080, () => console.log("listening on port 8080"));
+const userSchema = new mongoose_1.default.Schema({
+    email: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    posts: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "Post",
+        },
+    ],
 });
-start();
+userSchema.pre("save", function (done) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (this.isModified("password") || this.isNew) {
+            const hashPwd = authentication_1.authenticationService.pwdToHash(this.get("password"));
+        }
+        done();
+    });
+});
+userSchema.statics.build = (createUserDto) => {
+    return new exports.User(createUserDto);
+};
+exports.User = mongoose_1.default.model("User", userSchema);

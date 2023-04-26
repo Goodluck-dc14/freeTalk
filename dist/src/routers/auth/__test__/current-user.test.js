@@ -12,19 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = require("./app");
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!process.env.MONGO_URI)
-        throw new Error("MONGO_URI is required");
-    if (!process.env.JWT_KEY)
-        throw new Error("JWT_KEY is required");
-    try {
-        yield mongoose_1.default.connect(process.env.MONGO_URI);
-    }
-    catch (err) {
-        throw new Error("Database error");
-    }
-    app_1.app.listen(8080, () => console.log("listening on port 8080"));
-});
-start();
+const supertest_1 = __importDefault(require("supertest"));
+const app_1 = require("../../../app");
+it("should return a currentUser property", () => __awaiter(void 0, void 0, void 0, function* () {
+    const cookie = yield global.signin();
+    const res = yield (0, supertest_1.default)(app_1.app)
+        .get("/current-user")
+        .set("Cookie", cookie)
+        .send()
+        .expect(200);
+    expect(res.body.currentUser.email).toEqual("email@email.com");
+}));

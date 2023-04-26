@@ -12,26 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCommentRouter = void 0;
+exports.signonRouter = void 0;
 const express_1 = require("express");
-const post_1 = __importDefault(require("../../models/post"));
-const comment_1 = __importDefault(require("../../models/comment"));
+const user_1 = require("../../../src/models/user");
 const common_1 = require("../../../common");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = (0, express_1.Router)();
-exports.deleteCommentRouter = router;
-router.delete("/api/comment/:commentId/delete/:postId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { postId, commentId } = req.params;
-    if (!commentId || !postId) {
-        return next(new common_1.BadRequestError("postId and commentId are both required"));
-    }
-    try {
-        yield comment_1.default.findByIdAndRemove({ _id: commentId });
-    }
-    catch (err) {
-        next(new Error("comment cannot be updated"));
-    }
-    const post = yield post_1.default.findOneAndUpdate({ _id: postId }, { $pull: { comments: commentId } }, { new: true });
-    if (!post)
-        return next(new Error());
-    res.status(200).send(post);
+exports.signonRouter = router;
+router.post("/signin", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    const user = yield user_1.User.findOne({ email });
+    if (!user)
+        return next(new common_1.BadRequestError("wrong credentials"));
+    const isEqual = yield common_1.authenticationService.pwdCompare(user.password, password);
+    if (!isEqual)
+        return next(new common_1.BadRequestError("wrong credentials"));
+    const token = jsonwebtoken_1.default.sign({ email, userId: user.id }, process.env.JWT_KEY, {
+        expiresIn: "10h",
+    });
+    req.session = { jwt: token };
+    res.status(200).send(user);
 }));

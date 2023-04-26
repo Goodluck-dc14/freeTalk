@@ -45,4 +45,4 @@ userSchema.statics.build = (createUserDto: CreateUserDto) => {
   return new User(createUserDto);
 };
 
-export const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
+export const User = mongoose.model<UserDoc, UserModel>("user", userSchema);

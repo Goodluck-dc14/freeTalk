@@ -8,23 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = require("./app");
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!process.env.MONGO_URI)
-        throw new Error("MONGO_URI is required");
-    if (!process.env.JWT_KEY)
-        throw new Error("JWT_KEY is required");
-    try {
-        yield mongoose_1.default.connect(process.env.MONGO_URI);
-    }
-    catch (err) {
-        throw new Error("Database error");
-    }
-    app_1.app.listen(8080, () => console.log("listening on port 8080"));
+exports.requireAuth = void 0;
+const not_authorized_error_1 = require("../errors/not-authorized-error");
+const requireAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.currentUser)
+        return next(new not_authorized_error_1.NotAuthorized());
+    next();
 });
-start();
+exports.requireAuth = requireAuth;

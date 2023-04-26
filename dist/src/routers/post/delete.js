@@ -13,16 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePostRouter = void 0;
+const user_1 = require("../../models/user");
 const express_1 = require("express");
 const post_1 = __importDefault(require("../../models/post"));
+const common_1 = require("../../../common/");
 const router = (0, express_1.Router)();
 exports.deletePostRouter = router;
 router.delete("/api/post/delete/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     if (!id) {
-        const error = new Error("post is required");
-        error.status = 400;
-        next(error);
+        return next(new common_1.BadRequestError("post is required"));
     }
     try {
         yield post_1.default.findByIdAndRemove({ _id: id });
@@ -30,5 +30,8 @@ router.delete("/api/post/delete/:id", (req, res, next) => __awaiter(void 0, void
     catch (err) {
         next(new Error("post cannot be updated"));
     }
-    res.status(200).json({ success: true });
+    const user = yield user_1.User.findOneAndUpdate({ _id: req.currentUser.userId }, { $pull: { posts: id } }, { new: true });
+    if (!user)
+        return next(new Error());
+    res.status(200).send(user);
 }));

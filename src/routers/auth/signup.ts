@@ -1,12 +1,27 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { User } from "src/models/user";
+import { User } from "../../../src/models/user";
 import jwt from "jsonwebtoken";
-import { BadRequestError } from "../../../common";
+import { BadRequestError, validationRequest } from "../../../common";
+import { body } from "express-validator";
 
 const router = Router();
 
 router.post(
   "/signup",
+  [
+    body("email")
+      .not()
+      .isEmpty()
+      .isEmail()
+      .withMessage("A valid email is required"),
+
+    body("password")
+      .not()
+      .isEmpty()
+      .isLength({ min: 6 })
+      .withMessage("A valid password is required"),
+  ],
+  validationRequest,
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
